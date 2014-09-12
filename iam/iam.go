@@ -129,7 +129,7 @@ func (iam *IAM) CreateUser(name, path string) (*CreateUserResp, error) {
 	return resp, nil
 }
 
-// Response for GetUser requests.
+// Response to a GetUser request.
 //
 // See http://goo.gl/ZnzRN for more details.
 type GetUserResp struct {
@@ -148,6 +148,379 @@ func (iam *IAM) GetUser(name string) (*GetUserResp, error) {
 		params["UserName"] = name
 	}
 	resp := new(GetUserResp)
+	if err := iam.query(params, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Response to a GetGroup request.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_GetGroupResult.html for more details.
+type GetGroupResp struct {
+	Group       Group  `xml:"GetGroupResult>Group"`
+	IsTruncated bool   `xml:"GetGroupResult>IsTruncated"`
+	Marker      string `xml:"GetGroupResult>Marker"`
+	Users       []User `xml:"GetGroupResult>Users"`
+	RequestId   string `xml:"ResponseMetadata>RequestId"`
+}
+
+// GetGroup gets a group from IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_GetGroup.html for more details.
+func (iam *IAM) GetGroup(groupName, marker string, maxItems int) (*GetGroupResp, error) {
+	params := map[string]string{
+		"Action":    "GetGroup",
+		"GroupName": groupName,
+	}
+	if marker != "" {
+		params["Marker"] = marker
+	}
+	if maxItems != 0 {
+		params["maxItems"] = strconv.Itoa(maxItems)
+	}
+	resp := new(GetGroupResp)
+	if err := iam.query(params, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Response to a GetGroupPolicy request.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_GetGroupPolicyResult.html for more details.
+type GetGroupPolicyResp struct {
+	GroupName      string `xml:"GetGroupPolicyResult>GroupName"`
+	PolicyDocument string `xml:"GetGroupPolicyResult>PolicyDocument"`
+	PolicyName     string `xml:"GetGroupPolicyResult>PolicyName"`
+	RequestId      string `xml:"ResponseMetadata>RequestId"`
+}
+
+// GetGroupPolicy gets a policy for a group from IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_GetGroupPolicy.html for more details.
+func (iam *IAM) GetGroupPolicy(groupName, policyName string) (*GetGroupPolicyResp, error) {
+	params := map[string]string{
+		"Action":     "GetGroupPolicy",
+		"GroupName":  groupName,
+		"PolicyName": policyName,
+	}
+	resp := new(GetGroupPolicyResp)
+	if err := iam.query(params, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Role encapsulates a role managed by IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_Role.html for more details.
+type Role struct {
+	Arn                      string
+	AssumeRolePolicyDocument string
+	CreateDate               string
+	Path                     string
+	RoleName                 string
+}
+
+// InstanceProfile encapsulates an instance profile managed by IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_InstanceProfile.html for more details.
+type InstanceProfile struct {
+	Arn                 string
+	CreateDate          string
+	InstanceProfileId   string
+	InstanceProfileName string
+	Path                string
+	Roles               []Role
+}
+
+// Response to a GetInstanceProfile request.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_GetInstanceProfileResult.html for more details.
+type GetInstanceProfileResp struct {
+	InstanceProfile InstanceProfile `xml:"GetInstanceProfileResult"`
+	RequestId       string          `xml:"ResponseMetadata>RequestId"`
+}
+
+// GetInstanceProfile gets a profile for an instance from IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_GetInstanceProfile.html for more details.
+func (iam *IAM) GetInstanceProfile(instanceProfileName string) (*GetInstanceProfileResp, error) {
+	params := map[string]string{
+		"Action":              "GetInstanceProfile",
+		"InstanceProfileName": instanceProfileName,
+	}
+	resp := new(GetInstanceProfileResp)
+	if err := iam.query(params, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Response to a GetRole request.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_GetRoleResult.html for more details.
+type GetRoleResp struct {
+	Role      Role   `xml:"GetRoleResult>Role"`
+	RequestId string `xml:"ResponseMetadata>RequestId"`
+}
+
+// GetRole gets a role from IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_GetRole.html for more details.
+func (iam *IAM) GetRole(roleName string) (*GetRoleResp, error) {
+	params := map[string]string{
+		"Action":   "GetRole",
+		"RoleName": roleName,
+	}
+	resp := new(GetRoleResp)
+	if err := iam.query(params, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Response to a GetRolePolicy request.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_GetRolePolicyResult.html for more details.
+type GetRolePolicyResp struct {
+	PolicyDocument string `xml:"GetRolePolicyResults>PolicyDocument"`
+	PolicyName     string `xml:"GetRolePolicyResults>PolicyName"`
+	RoleName       string `xml:"GetRolePolicyResults>RoleName"`
+	RequestId      string `xml:"ResponseMetadata>RequestId"`
+}
+
+// GetRolePolicy gets a policy got a group from IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_GetRolePolicy.html for more details.
+func (iam *IAM) GetRolePolicy(roleName, policyName string) (*GetRolePolicyResp, error) {
+	params := map[string]string{
+		"Action":     "GetRolePolicy",
+		"RoleName":   roleName,
+		"PolicyName": policyName,
+	}
+	resp := new(GetRolePolicyResp)
+	if err := iam.query(params, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Response to a AccountAliases request.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListAccountAliasesResult.html for more details.
+type AccountAliasesResp struct {
+	Aliases     []string `xml:"ListAccountAliasesResult>AccountAliases"`
+	IsTruncated bool     `xml:"ListAccountAliasesResult>IsTruncated"`
+	Marker      string   `xml:"ListAccountAliasesResult>Marker"`
+	RequestId   string   `xml:"ResponseMetadata>RequestId"`
+}
+
+// AccountAliases list the associated aliases with the account from IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListAccountAliases.html for more details.
+func (iam *IAM) AccountAliases(marker string, maxItems int) (*AccountAliasesResp, error) {
+	params := map[string]string{
+		"Action": "ListAccountAliases",
+	}
+	if marker != "" {
+		params["Marker"] = marker
+	}
+	if maxItems != 0 {
+		params["maxItems"] = strconv.Itoa(maxItems)
+	}
+	resp := new(AccountAliasesResp)
+	if err := iam.query(params, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Response to a GroupPolicies request.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListGroupPoliciesResult.html for more details.
+type GroupPoliciesResp struct {
+	PolicyNames []string `xml:"ListGroupPoliciesResult>PolicyNames"`
+	IsTruncated bool     `xml:"ListGroupPoliciesResult>IsTruncated"`
+	Marker      string   `xml:"ListGroupPoliciesResult>Marker"`
+	RequestId   string   `xml:"ResponseMetadata>RequestId"`
+}
+
+// GroupPolicies gets the policies associated with a group from IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListGroupPolicies.html for more details.
+func (iam *IAM) GroupPolicies(groupName, marker string, maxItems int) (*GroupPoliciesResp, error) {
+	params := map[string]string{
+		"Action":    "ListGroupPolicies",
+		"GroupName": groupName,
+	}
+	if marker != "" {
+		params["Marker"] = marker
+	}
+	if maxItems != 0 {
+		params["maxItems"] = strconv.Itoa(maxItems)
+	}
+	resp := new(GroupPoliciesResp)
+	if err := iam.query(params, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Response to a GroupsForUser request.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListGroupsForUserResult.html for more details.
+type GroupsForUserResp struct {
+	Groups      []Group `xml:"ListGroupsForUserResult>Groups"`
+	IsTruncated bool    `xml:"ListGroupsForUserResult>IsTruncated"`
+	Marker      string  `xml:"ListGroupsForUserResult>Marker"`
+	RequestId   string  `xml:"ResponseMetadata>RequestId"`
+}
+
+// GroupsForUser gets the groups a user belongs from IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListGroupsForUser.html for more details.
+func (iam *IAM) GroupsForUser(userName, marker string, maxItems int) (*GroupsForUserResp, error) {
+	params := map[string]string{
+		"Action":   "GroupsForUser",
+		"UserName": userName,
+	}
+	if marker != "" {
+		params["Marker"] = marker
+	}
+	if maxItems != 0 {
+		params["maxItems"] = strconv.Itoa(maxItems)
+	}
+	resp := new(GroupsForUserResp)
+	if err := iam.query(params, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Response to a InstanceProfiles request.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListInstanceProfilesResult.html for more details.
+type InstanceProfilesResp struct {
+	Profiles    []InstanceProfile `xml:"ListInstaceProfileResult>InstanceProfiles"`
+	IsTruncated bool              `xml:"ListInstaceProfileResult>IsTruncated"`
+	Marker      string            `xml:"ListInstaceProfileResult>Marker"`
+	RequestId   string            `xml:"ResponseMetadata>RequestId"`
+}
+
+// InstanceProfiles gets the instance profiles from IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListInstanceProfiles.html for more details.
+func (iam *IAM) InstanceProfiles(pathPrefix, marker string, maxItems int) (*InstanceProfilesResp, error) {
+	params := map[string]string{
+		"Action": "ListInstanceProfiles",
+	}
+	if pathPrefix != "" {
+		params["PathPrefix"] = pathPrefix
+	}
+	if marker != "" {
+		params["Marker"] = marker
+	}
+	if maxItems != 0 {
+		params["maxItems"] = strconv.Itoa(maxItems)
+	}
+	resp := new(InstanceProfilesResp)
+	if err := iam.query(params, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Response to a InstanceProfilesForRole request.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListInstanceProfilesForRoleResult.html for more details.
+type InstanceProfilesForRoleResp struct {
+	Profiles    []InstanceProfile `xml:"ListInstaceProfileForRoleResult>InstanceProfiles"`
+	IsTruncated bool              `xml:"ListInstaceProfileForRoleResult>IsTruncated"`
+	Marker      string            `xml:"ListInstaceProfileForRoleResult>Marker"`
+	RequestId   string            `xml:"ResponseMetadata>RequestId"`
+}
+
+// InstanceProfilesForRole gets the instance profiles for a role from IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListInstanceProfilesForRole.html for more details.
+func (iam *IAM) InstanceProfilesForRole(roleName, marker string, maxItems int) (*InstanceProfilesForRoleResp, error) {
+	params := map[string]string{
+		"Action":   "InstanceProfilesForRole",
+		"RoleName": roleName,
+	}
+	if marker != "" {
+		params["Marker"] = marker
+	}
+	if maxItems != 0 {
+		params["maxItems"] = strconv.Itoa(maxItems)
+	}
+	resp := new(InstanceProfilesForRoleResp)
+	if err := iam.query(params, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Response to a RolePolicies request.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListRolePoliciesResult.html for more details.
+type RolePoliciesResp struct {
+	PolicyNames []string `xml:"ListRolePoliciesResult>PolicyNames"`
+	IsTruncated bool     `xml:"ListGroupPoliciesResult>IsTruncated"`
+	Marker      string   `xml:"ListGroupPoliciesResult>Marker"`
+	RequestId   string   `xml:"ResponseMetadata>RequestId"`
+}
+
+// RolePolicies gets the policies associated with a role from IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListRolePolicies.html for more details.
+func (iam *IAM) RolePolicies(roleName, marker string, maxItems int) (*RolePoliciesResp, error) {
+	params := map[string]string{
+		"Action":   "ListRolePolicies",
+		"RoleName": roleName,
+	}
+	if marker != "" {
+		params["Marker"] = marker
+	}
+	if maxItems != 0 {
+		params["maxItems"] = strconv.Itoa(maxItems)
+	}
+	resp := new(RolePoliciesResp)
+	if err := iam.query(params, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Response to a Roles request.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListRolesResult.html for more details.
+type RolesResp struct {
+	Roles       []Role `xml:"ListRolesResult>Roles"`
+	IsTruncated bool   `xml:"ListRolesResult>IsTruncated"`
+	Marker      string `xml:"ListRolesResult>Marker"`
+	RequestId   string `xml:"ResponseMetadata>RequestId"`
+}
+
+// Roles gets the roles from IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListRoles.html for more details.
+func (iam *IAM) Roles(pathPrefix, marker string, maxItems int) (*RolesResp, error) {
+	params := map[string]string{
+		"Action": "ListRoles",
+	}
+	if pathPrefix != "" {
+		params["PathPrefix"] = pathPrefix
+	}
+	if marker != "" {
+		params["Marker"] = marker
+	}
+	if maxItems != 0 {
+		params["maxItems"] = strconv.Itoa(maxItems)
+	}
+	resp := new(RolesResp)
 	if err := iam.query(params, resp); err != nil {
 		return nil, err
 	}
@@ -238,6 +611,70 @@ func (iam *IAM) Groups(pathPrefix string) (*GroupsResp, error) {
 	return resp, nil
 }
 
+// Response to a UserPolicies request.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListUserPoliciesResult.html for more details.
+type UserPoliciesResp struct {
+	PolicyNames []string `xml:"ListUserPoliciesResult>PolicyNames"`
+	IsTruncated bool     `xml:"ListUserPoliciesResult>IsTruncated"`
+	Marker      string   `xml:"ListUserPoliciesResult>Marker"`
+	RequestId   string   `xml:"ResponseMetadata>RequestId"`
+}
+
+// UserPolicies gets the policies associated with a user from IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListUserPolicies.html for more details.
+func (iam *IAM) UserPolicies(userName, marker string, maxItems int) (*UserPoliciesResp, error) {
+	params := map[string]string{
+		"Action":   "ListUserPolicies",
+		"UserName": userName,
+	}
+	if marker != "" {
+		params["Marker"] = marker
+	}
+	if maxItems != 0 {
+		params["maxItems"] = strconv.Itoa(maxItems)
+	}
+	resp := new(UserPoliciesResp)
+	if err := iam.query(params, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Response to a Users request.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListUsersResult.html for more details.
+type UsersResp struct {
+	Users       []User `xml:"ListUsersResult>Users"`
+	IsTruncated bool   `xml:"ListUsersResult>IsTruncated"`
+	Marker      string `xml:"ListUsersResult>Marker"`
+	RequestId   string `xml:"ResponseMetadata>RequestId"`
+}
+
+// Users gets the users from IAM.
+//
+// See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListUsers.html for more details.
+func (iam *IAM) Users(pathPrefix, marker string, maxItems int) (*UsersResp, error) {
+	params := map[string]string{
+		"Action": "ListUsers",
+	}
+	if pathPrefix != "" {
+		params["PathPrefix"] = pathPrefix
+	}
+	if marker != "" {
+		params["Marker"] = marker
+	}
+	if maxItems != 0 {
+		params["maxItems"] = strconv.Itoa(maxItems)
+	}
+	resp := new(UsersResp)
+	if err := iam.query(params, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
 // DeleteGroup deletes a group from IAM.
 //
 // See http://goo.gl/d5i2i for more details.
@@ -286,7 +723,7 @@ func (iam *IAM) CreateAccessKey(userName string) (*CreateAccessKeyResp, error) {
 	return resp, nil
 }
 
-// Response to AccessKeys request.
+// Response to a AccessKeys request.
 //
 // See http://goo.gl/Vjozx for more details.
 type AccessKeysResp struct {
