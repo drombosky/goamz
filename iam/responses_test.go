@@ -153,3 +153,74 @@ var GetUserPolicyExample = `
    </ResponseMetadata>
 </GetUserPolicyResponse>
 `
+
+var GetGroupExample = `
+<GetGroupResponse>
+ <GetGroupResult>
+    <Group>
+       <Path>/</Path>
+       <GroupName>Admins</GroupName>
+       <GroupId>AGPACKCEVSQ6C2EXAMPLE</GroupId>
+       <Arn>arn:aws:iam::123456789012:group/Admins</Arn>
+    </Group>
+    <Users>
+       <member>
+          <Path>/division_abc/subdivision_xyz/</Path>
+          <UserName>Bob</UserName>
+          <UserId>AIDACKCEVSQ6C2EXAMPLE</UserId>
+          <Arn>arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/Bob</Arn>
+       </member>
+       <member>
+          <Path>/division_abc/subdivision_xyz/</Path>
+          <UserName>Susan</UserName>
+          <UserId>AIDACKCEVSQ6C2EXAMPLE</UserId>
+          <Arn>arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/Susan</Arn>
+       </member>
+    </Users>
+    <IsTruncated>false</IsTruncated>
+ </GetGroupResult>
+ <ResponseMetadata>
+    <RequestId>7a62c49f-347e-4fc4-9331-6e8eEXAMPLE</RequestId>
+ </ResponseMetadata>
+</GetGroupResponse>
+`
+
+var GetGroupPolicyExample = `
+<GetGroupPolicyResponse>
+ <GetGroupPolicyResult>
+    <GroupName>Admins</GroupName>
+    <PolicyName>AdminRoot</PolicyName>
+    <PolicyDocument>{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"*","Resource":"*"}]}</PolicyDocument>
+ </GetGroupPolicyResult>
+ <ResponseMetadata>
+    <RequestId>7a62c49f-347e-4fc4-9331-6e8eEXAMPLE</RequestId>
+ </ResponseMetadata>
+</GetGroupPolicyResponse>
+`
+
+var GetInstanceProfileExample = `
+<GetInstanceProfileResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+<GetInstanceProfileResult>
+  <InstanceProfile>
+    <InstanceProfileId>AIPAD5ARO2C5EXAMPLE3G</InstanceProfileId>
+    <Roles>
+      <member>
+        <Path>/application_abc/component_xyz/</Path>
+        <Arn>arn:aws:iam::123456789012:role/application_abc/component_xyz/S3Access</Arn>
+        <RoleName>S3Access</RoleName>
+        <AssumeRolePolicyDocument>{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}</AssumeRolePolicyDocument>
+        <CreateDate>2012-05-09T15:45:35Z</CreateDate>
+        <RoleId>AROACVYKSVTSZFEXAMPLE</RoleId>
+      </member>
+    </Roles>
+    <InstanceProfileName>Webserver</InstanceProfileName>
+    <Path>/application_abc/component_xyz/</Path>
+    <Arn>arn:aws:iam::123456789012:instance-profile/application_abc/component_xyz/Webserver</Arn>
+    <CreateDate>2012-05-09T16:11:10Z</CreateDate>
+  </InstanceProfile>
+</GetInstanceProfileResult>
+<ResponseMetadata>
+  <RequestId>37289fda-99f2-11e1-a4c3-27EXAMPLE804</RequestId>
+</ResponseMetadata>
+</GetInstanceProfileResponse>
+`

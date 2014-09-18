@@ -161,7 +161,7 @@ type GetGroupResp struct {
 	Group       Group  `xml:"GetGroupResult>Group"`
 	IsTruncated bool   `xml:"GetGroupResult>IsTruncated"`
 	Marker      string `xml:"GetGroupResult>Marker"`
-	Users       []User `xml:"GetGroupResult>Users"`
+	Users       []User `xml:"GetGroupResult>Users>member"`
 	RequestId   string `xml:"ResponseMetadata>RequestId"`
 }
 
@@ -177,7 +177,7 @@ func (iam *IAM) GetGroup(groupName, marker string, maxItems int) (*GetGroupResp,
 		params["Marker"] = marker
 	}
 	if maxItems != 0 {
-		params["maxItems"] = strconv.Itoa(maxItems)
+		params["MaxItems"] = strconv.Itoa(maxItems)
 	}
 	resp := new(GetGroupResp)
 	if err := iam.query(params, resp); err != nil {
@@ -232,14 +232,14 @@ type InstanceProfile struct {
 	InstanceProfileId   string
 	InstanceProfileName string
 	Path                string
-	Roles               []Role
+	Roles               []Role `xml:"Roles>members"`
 }
 
 // Response to a GetInstanceProfile request.
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_GetInstanceProfileResult.html for more details.
 type GetInstanceProfileResp struct {
-	InstanceProfile InstanceProfile `xml:"GetInstanceProfileResult"`
+	InstanceProfile InstanceProfile `xml:"GetInstanceProfileResult>InstanceProfile"`
 	RequestId       string          `xml:"ResponseMetadata>RequestId"`
 }
 

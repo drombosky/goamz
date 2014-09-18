@@ -5,6 +5,7 @@ import (
 	"github.com/crowdmob/goamz/iam"
 	"github.com/crowdmob/goamz/testutil"
 	"gopkg.in/check.v1"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -275,4 +276,93 @@ func (s *S) TestDeleteUserPolicy(c *check.C) {
 	c.Assert(values.Get("UserName"), check.Equals, "Bob")
 	c.Assert(err, check.IsNil)
 	c.Assert(resp.RequestId, check.Equals, "7a62c49f-347e-4fc4-9331-6e8eEXAMPLE")
+}
+
+func (s *S) TestGetGroup(c *check.C) {
+	testServer.Response(200, nil, GetGroupExample)
+	expected := iam.GetGroupResp{
+		Group: iam.Group{
+			Arn:  "arn:aws:iam::123456789012:group/Admins",
+			Id:   "AGPACKCEVSQ6C2EXAMPLE",
+			Name: "Admins",
+			Path: "/",
+		},
+		IsTruncated: false,
+		Marker:      "",
+		Users: []iam.User{
+			iam.User{
+				Arn:  "arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/Bob",
+				Path: "/division_abc/subdivision_xyz/",
+				Id:   "AIDACKCEVSQ6C2EXAMPLE",
+				Name: "Bob",
+			},
+			iam.User{
+				Arn:  "arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/Susan",
+				Path: "/division_abc/subdivision_xyz/",
+				Id:   "AIDACKCEVSQ6C2EXAMPLE",
+				Name: "Susan",
+			},
+		},
+		RequestId: "7a62c49f-347e-4fc4-9331-6e8eEXAMPLE",
+	}
+	groupName := "Admins"
+	marker := "ignore"
+	maxItems := 10
+	resp, err := s.iam.GetGroup(groupName, marker, maxItems)
+	values := testServer.WaitRequest().URL.Query()
+	c.Assert(values.Get("Action"), check.Equals, "GetGroup")
+	c.Assert(values.Get("GroupName"), check.Equals, groupName)
+	c.Assert(values.Get("Marker"), check.Equals, marker)
+	c.Assert(values.Get("MaxItems"), check.Equals, strconv.Itoa(maxItems))
+	c.Assert(err, check.IsNil)
+	c.Assert(*resp, check.DeepEquals, expected)
+}
+
+func (s *S) TestGetGroupPolicy(c *check.C) {
+	testServer.Response(200, nil, GetGroupPolicyExample)
+	expected := iam.GetGroupPolicyResp{
+		GroupName:      "Admins",
+		PolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"*","Resource":"*"}]}`,
+		PolicyName:     "AdminRoot",
+		RequestId:      "7a62c49f-347e-4fc4-9331-6e8eEXAMPLE",
+	}
+	groupName := "Admins"
+	policyName := "AdminRoot"
+	resp, err := s.iam.GetGroupPolicy(groupName, policyName)
+	values := testServer.WaitRequest().URL.Query()
+	c.Assert(values.Get("Action"), check.Equals, "GetGroupPolicy")
+	c.Assert(values.Get("GroupName"), check.Equals, groupName)
+	c.Assert(values.Get("PolicyName"), check.Equals, policyName)
+	c.Assert(err, check.IsNil)
+	c.Assert(*resp, check.DeepEquals, expected)
+}
+
+func (s *S) TestGetInstanceProfile(c *check.C) {
+	testServer.Response(200, nil, GetInstanceProfileExample)
+	expected := iam.GetInstanceProfileResp{
+		InstanceProfile: iam.InstanceProfile{
+			Arn:                 "arn:aws:iam::123456789012:instance-profile/application_abc/component_xyz/Webserver",
+			CreateDate:          "2012-05-09T16:11:10Z",
+			InstanceProfileId:   "AIPAD5ARO2C5EXAMPLE3G",
+			InstanceProfileName: "Webserver",
+			Path:                "/application_abc/component_xyz/",
+			Roles: []iam.Role{
+				iam.Role{
+					Arn: "arn:aws:iam::123456789012:role/application_abc/component_xyz/S3Access",
+					AssumeRolePolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}`,
+					CreateDate:               "2012-05-09T15:45:35Z",
+					Path:                     "/application_abc/component_xyz/",
+					RoleName:                 "S3Access",
+				},
+			},
+		},
+		RequestId: "37289fda-99f2-11e1-a4c3-27EXAMPLE804",
+	}
+	instanceProfileName := "Webserver"
+	resp, err := s.iam.GetInstanceProfile(instanceProfileName)
+	values := testServer.WaitRequest().URL.Query()
+	c.Assert(values.Get("Action"), check.Equals, "GetInstanceProfile")
+	c.Assert(values.Get("InstanceProfileName"), check.Equals, instanceProfileName)
+	c.Assert(err, check.IsNil)
+	c.Assert(*resp, check.DeepEquals, expected)
 }
