@@ -220,28 +220,28 @@ type Role struct {
 	AssumeRolePolicyDocument string
 	CreateDate               string
 	Path                     string
-	RoleId                   string
-	RoleName                 string
+	Id                       string `xml:"RoleId"`
+	Name                     string `xml:"RoleName"`
 }
 
 // InstanceProfile encapsulates an instance profile managed by IAM.
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_InstanceProfile.html for more details.
 type InstanceProfile struct {
-	Arn                 string
-	CreateDate          string
-	InstanceProfileId   string
-	InstanceProfileName string
-	Path                string
-	Roles               []Role `xml:"Roles>member"`
+	Arn        string
+	CreateDate string
+	Id         string `xml:"InstanceProfileId"`
+	Name       string `xml:"InstanceProfileName"`
+	Path       string
+	Roles      []Role `xml:"Roles>member"`
 }
 
 // Response to a GetInstanceProfile request.
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_GetInstanceProfileResult.html for more details.
 type GetInstanceProfileResp struct {
-	InstanceProfile InstanceProfile `xml:"GetInstanceProfileResult>InstanceProfile"`
-	RequestId       string          `xml:"ResponseMetadata>RequestId"`
+	Profile   InstanceProfile `xml:"GetInstanceProfileResult>InstanceProfile"`
+	RequestId string          `xml:"ResponseMetadata>RequestId"`
 }
 
 // GetInstanceProfile gets a profile for an instance from IAM.
@@ -342,7 +342,7 @@ func (iam *IAM) AccountAliases(marker string, maxItems int) (*AccountAliasesResp
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListGroupPoliciesResult.html for more details.
 type GroupPoliciesResp struct {
-	PolicyNames []string `xml:"ListGroupPoliciesResult>PolicyNames>member"`
+	Names       []string `xml:"ListGroupPoliciesResult>PolicyNames>member"`
 	IsTruncated bool     `xml:"ListGroupPoliciesResult>IsTruncated"`
 	Marker      string   `xml:"ListGroupPoliciesResult>Marker"`
 	RequestId   string   `xml:"ResponseMetadata>RequestId"`
@@ -468,7 +468,7 @@ func (iam *IAM) InstanceProfilesForRole(roleName, marker string, maxItems int) (
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListRolePoliciesResult.html for more details.
 type RolePoliciesResp struct {
-	PolicyNames []string `xml:"ListRolePoliciesResult>PolicyNames>member"`
+	Names       []string `xml:"ListRolePoliciesResult>PolicyNames>member"`
 	IsTruncated bool     `xml:"ListGroupPoliciesResult>IsTruncated"`
 	Marker      string   `xml:"ListGroupPoliciesResult>Marker"`
 	RequestId   string   `xml:"ResponseMetadata>RequestId"`
@@ -616,7 +616,7 @@ func (iam *IAM) Groups(pathPrefix string) (*GroupsResp, error) {
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListUserPoliciesResult.html for more details.
 type UserPoliciesResp struct {
-	PolicyNames []string `xml:"ListUserPoliciesResult>PolicyNames>member"`
+	Names       []string `xml:"ListUserPoliciesResult>PolicyNames>member"`
 	IsTruncated bool     `xml:"ListUserPoliciesResult>IsTruncated"`
 	Marker      string   `xml:"ListUserPoliciesResult>Marker"`
 	RequestId   string   `xml:"ResponseMetadata>RequestId"`

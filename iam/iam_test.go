@@ -340,20 +340,20 @@ func (s *S) TestGetGroupPolicy(c *check.C) {
 func (s *S) TestGetInstanceProfile(c *check.C) {
 	testServer.Response(200, nil, GetInstanceProfileExample)
 	expected := iam.GetInstanceProfileResp{
-		InstanceProfile: iam.InstanceProfile{
-			Arn:                 "arn:aws:iam::123456789012:instance-profile/application_abc/component_xyz/Webserver",
-			CreateDate:          "2012-05-09T16:11:10Z",
-			InstanceProfileId:   "AIPAD5ARO2C5EXAMPLE3G",
-			InstanceProfileName: "Webserver",
-			Path:                "/application_abc/component_xyz/",
+		Profile: iam.InstanceProfile{
+			Arn:        "arn:aws:iam::123456789012:instance-profile/application_abc/component_xyz/Webserver",
+			CreateDate: "2012-05-09T16:11:10Z",
+			Id:         "AIPAD5ARO2C5EXAMPLE3G",
+			Name:       "Webserver",
+			Path:       "/application_abc/component_xyz/",
 			Roles: []iam.Role{
 				iam.Role{
 					Arn: "arn:aws:iam::123456789012:role/application_abc/component_xyz/S3Access",
 					AssumeRolePolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}`,
 					CreateDate:               "2012-05-09T15:45:35Z",
 					Path:                     "/application_abc/component_xyz/",
-					RoleId:                   "AROACVYKSVTSZFEXAMPLE",
-					RoleName:                 "S3Access",
+					Id:                       "AROACVYKSVTSZFEXAMPLE",
+					Name:                     "S3Access",
 				},
 			},
 		},
@@ -376,8 +376,8 @@ func (s *S) TestGetRole(c *check.C) {
 			AssumeRolePolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}`,
 			CreateDate:               "2012-05-08T23:34:01Z",
 			Path:                     "/application_abc/component_xyz/",
-			RoleId:                   "AROADBQP57FF2AEXAMPLE",
-			RoleName:                 "S3Access",
+			Id:                       "AROADBQP57FF2AEXAMPLE",
+			Name:                     "S3Access",
 		},
 		RequestId: "df37e965-9967-11e1-a4c3-270EXAMPLE04",
 	}
@@ -431,7 +431,7 @@ func (s *S) TestAccountAliases(c *check.C) {
 func (s *S) TestGroupPolicies(c *check.C) {
 	testServer.Response(200, nil, GroupPoliciesExample)
 	expected := iam.GroupPoliciesResp{
-		PolicyNames: []string{"AdminRoot", "KeyPolicy"},
+		Names:       []string{"AdminRoot", "KeyPolicy"},
 		IsTruncated: false,
 		Marker:      "",
 		RequestId:   "7a62c49f-347e-4fc4-9331-6e8eEXAMPLE",
@@ -482,29 +482,29 @@ func (s *S) TestInstanceProfiles(c *check.C) {
 	expected := iam.InstanceProfilesResp{
 		Profiles: []iam.InstanceProfile{
 			iam.InstanceProfile{
-				Arn:                 "arn:aws:iam::123456789012:instance-profile/application_abc/component_xyz/Database",
-				CreateDate:          "2012-05-09T16:27:03Z",
-				InstanceProfileId:   "AIPACIFN4OZXG7EXAMPLE",
-				InstanceProfileName: "Database",
-				Path:                "/application_abc/component_xyz/",
+				Arn:        "arn:aws:iam::123456789012:instance-profile/application_abc/component_xyz/Database",
+				CreateDate: "2012-05-09T16:27:03Z",
+				Id:         "AIPACIFN4OZXG7EXAMPLE",
+				Name:       "Database",
+				Path:       "/application_abc/component_xyz/",
 				Roles: []iam.Role{
 					iam.Role{
 						Arn: "arn:aws:iam::123456789012:role/application_abc/component_xyz/S3Access",
 						AssumeRolePolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}`,
 						CreateDate:               "2012-05-09T15:45:35Z",
 						Path:                     "/application_abc/component_xyz/",
-						RoleId:                   "AROACVSVTSZYK3EXAMPLE",
-						RoleName:                 "S3Access",
+						Id:                       "AROACVSVTSZYK3EXAMPLE",
+						Name:                     "S3Access",
 					},
 				},
 			},
 			iam.InstanceProfile{
-				Arn:                 "arn:aws:iam::123456789012:instance-profile/application_abc/component_xyz/Webserver",
-				CreateDate:          "2012-05-09T16:27:11Z",
-				InstanceProfileId:   "AIPACZLSXM2EYYEXAMPLE",
-				InstanceProfileName: "Webserver",
-				Path:                "/application_abc/component_xyz/",
-				Roles:               nil,
+				Arn:        "arn:aws:iam::123456789012:instance-profile/application_abc/component_xyz/Webserver",
+				CreateDate: "2012-05-09T16:27:11Z",
+				Id:         "AIPACZLSXM2EYYEXAMPLE",
+				Name:       "Webserver",
+				Path:       "/application_abc/component_xyz/",
+				Roles:      nil,
 			},
 		},
 		IsTruncated: false,
@@ -529,19 +529,19 @@ func (s *S) TestInstanceProfilesForRole(c *check.C) {
 	expected := iam.InstanceProfilesForRoleResp{
 		Profiles: []iam.InstanceProfile{
 			iam.InstanceProfile{
-				Arn:                 "arn:aws:iam::123456789012:instance-profile/application_abc/component_xyz/Webserver",
-				CreateDate:          "2012-05-09T16:27:11Z",
-				InstanceProfileId:   "AIPACZLS2EYYXMEXAMPLE",
-				InstanceProfileName: "Webserver",
-				Path:                "/application_abc/component_xyz/",
+				Arn:        "arn:aws:iam::123456789012:instance-profile/application_abc/component_xyz/Webserver",
+				CreateDate: "2012-05-09T16:27:11Z",
+				Id:         "AIPACZLS2EYYXMEXAMPLE",
+				Name:       "Webserver",
+				Path:       "/application_abc/component_xyz/",
 				Roles: []iam.Role{
 					iam.Role{
 						Arn: "arn:aws:iam::123456789012:role/application_abc/component_xyz/S3Access",
 						AssumeRolePolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}`,
 						CreateDate:               "2012-05-09T15:45:35Z",
 						Path:                     "/application_abc/component_xyz/",
-						RoleId:                   "AROACVSVTSZYK3EXAMPLE",
-						RoleName:                 "S3Access",
+						Id:                       "AROACVSVTSZYK3EXAMPLE",
+						Name:                     "S3Access",
 					},
 				},
 			},
@@ -566,7 +566,7 @@ func (s *S) TestInstanceProfilesForRole(c *check.C) {
 func (s *S) TestRolePolicies(c *check.C) {
 	testServer.Response(200, nil, RolePoliciesExample)
 	expected := iam.RolePoliciesResp{
-		PolicyNames: []string{
+		Names: []string{
 			"CloudwatchPutMetricPolicy",
 			"S3AccessPolicy",
 		},
@@ -596,16 +596,16 @@ func (s *S) TestRoles(c *check.C) {
 				AssumeRolePolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}`,
 				CreateDate:               "2012-05-09T15:45:35Z",
 				Path:                     "/application_abc/component_xyz/",
-				RoleId:                   "AROACVSVTSZYEXAMPLEYK",
-				RoleName:                 "S3Access",
+				Id:                       "AROACVSVTSZYEXAMPLEYK",
+				Name:                     "S3Access",
 			},
 			iam.Role{
 				Arn: "arn:aws:iam::123456789012:role/application_abc/component_xyz/SDBAccess",
 				AssumeRolePolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}`,
 				CreateDate:               "2012-05-09T15:45:45Z",
 				Path:                     "/application_abc/component_xyz/",
-				RoleId:                   "AROAC2ICXG32EXAMPLEWK",
-				RoleName:                 "SDBAccess",
+				Id:                       "AROAC2ICXG32EXAMPLEWK",
+				Name:                     "SDBAccess",
 			},
 		},
 		IsTruncated: false,
@@ -628,7 +628,7 @@ func (s *S) TestRoles(c *check.C) {
 func (s *S) TestUserPolicies(c *check.C) {
 	testServer.Response(200, nil, UserPoliciesExample)
 	expected := iam.UserPoliciesResp{
-		PolicyNames: []string{"AllAccessPolicy", "KeyPolicy"},
+		Names:       []string{"AllAccessPolicy", "KeyPolicy"},
 		IsTruncated: false,
 		Marker:      "",
 		RequestId:   "7a62c49f-347e-4fc4-9331-6e8eEXAMPLE",
