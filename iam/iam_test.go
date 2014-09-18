@@ -352,6 +352,7 @@ func (s *S) TestGetInstanceProfile(c *check.C) {
 					AssumeRolePolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}`,
 					CreateDate:               "2012-05-09T15:45:35Z",
 					Path:                     "/application_abc/component_xyz/",
+					RoleId:                   "AROACVYKSVTSZFEXAMPLE",
 					RoleName:                 "S3Access",
 				},
 			},
@@ -363,6 +364,318 @@ func (s *S) TestGetInstanceProfile(c *check.C) {
 	values := testServer.WaitRequest().URL.Query()
 	c.Assert(values.Get("Action"), check.Equals, "GetInstanceProfile")
 	c.Assert(values.Get("InstanceProfileName"), check.Equals, instanceProfileName)
+	c.Assert(err, check.IsNil)
+	c.Assert(*resp, check.DeepEquals, expected)
+}
+
+func (s *S) TestGetRole(c *check.C) {
+	testServer.Response(200, nil, GetRoleExample)
+	expected := iam.GetRoleResp{
+		Role: iam.Role{
+			Arn: "arn:aws:iam::123456789012:role/application_abc/component_xyz/S3Access",
+			AssumeRolePolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}`,
+			CreateDate:               "2012-05-08T23:34:01Z",
+			Path:                     "/application_abc/component_xyz/",
+			RoleId:                   "AROADBQP57FF2AEXAMPLE",
+			RoleName:                 "S3Access",
+		},
+		RequestId: "df37e965-9967-11e1-a4c3-270EXAMPLE04",
+	}
+	roleName := "S3Access"
+	resp, err := s.iam.GetRole(roleName)
+	values := testServer.WaitRequest().URL.Query()
+	c.Assert(values.Get("Action"), check.Equals, "GetRole")
+	c.Assert(values.Get("RoleName"), check.Equals, roleName)
+	c.Assert(err, check.IsNil)
+	c.Assert(*resp, check.DeepEquals, expected)
+}
+
+func (s *S) TestGetRolePolocy(c *check.C) {
+	testServer.Response(200, nil, GetRolePolicyExample)
+	expected := iam.GetRolePolicyResp{
+		PolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["s3:*"],"Resource":["*"]}]}`,
+		PolicyName:     "S3AccessPolicy",
+		RoleName:       "S3Access",
+		RequestId:      "7e7cd8bc-99ef-11e1-a4c3-27EXAMPLE804",
+	}
+	roleName := "S3Access"
+	policyName := "S3AccessPolicy"
+	resp, err := s.iam.GetRolePolicy(roleName, policyName)
+	values := testServer.WaitRequest().URL.Query()
+	c.Assert(values.Get("Action"), check.Equals, "GetRolePolicy")
+	c.Assert(values.Get("RoleName"), check.Equals, roleName)
+	c.Assert(values.Get("PolicyName"), check.Equals, policyName)
+	c.Assert(err, check.IsNil)
+	c.Assert(*resp, check.DeepEquals, expected)
+}
+
+func (s *S) TestAccountAliases(c *check.C) {
+	testServer.Response(200, nil, AccountAliasesExample)
+	expected := iam.AccountAliasesResp{
+		Aliases:     []string{"foocorporation", "barcorporation"},
+		IsTruncated: false,
+		Marker:      "",
+		RequestId:   "c5a076e9-f1b0-11df-8fbe-45274EXAMPLE",
+	}
+	marker := "ignore"
+	maxItems := 10
+	resp, err := s.iam.AccountAliases(marker, maxItems)
+	values := testServer.WaitRequest().URL.Query()
+	c.Assert(values.Get("Action"), check.Equals, "ListAccountAliases")
+	c.Assert(values.Get("Marker"), check.Equals, marker)
+	c.Assert(values.Get("MaxItems"), check.Equals, strconv.Itoa(maxItems))
+	c.Assert(err, check.IsNil)
+	c.Assert(*resp, check.DeepEquals, expected)
+}
+
+func (s *S) TestGroupPolicies(c *check.C) {
+	testServer.Response(200, nil, GroupPoliciesExample)
+	expected := iam.GroupPoliciesResp{
+		PolicyNames: []string{"AdminRoot", "KeyPolicy"},
+		IsTruncated: false,
+		Marker:      "",
+		RequestId:   "7a62c49f-347e-4fc4-9331-6e8eEXAMPLE",
+	}
+	groupName := "Admins"
+	marker := "ignore"
+	maxItems := 10
+	resp, err := s.iam.GroupPolicies(groupName, marker, maxItems)
+	values := testServer.WaitRequest().URL.Query()
+	c.Assert(values.Get("Action"), check.Equals, "ListGroupPolicies")
+	c.Assert(values.Get("GroupName"), check.Equals, groupName)
+	c.Assert(values.Get("Marker"), check.Equals, marker)
+	c.Assert(values.Get("MaxItems"), check.Equals, strconv.Itoa(maxItems))
+	c.Assert(err, check.IsNil)
+	c.Assert(*resp, check.DeepEquals, expected)
+}
+
+func (s *S) TestGroupsForUser(c *check.C) {
+	testServer.Response(200, nil, GroupsForUserExample)
+	expected := iam.GroupsForUserResp{
+		Groups: []iam.Group{
+			iam.Group{
+				Arn:  "arn:aws:iam::123456789012:group/Admins",
+				Id:   "AGPACKCEVSQ6C2EXAMPLE",
+				Name: "Admins",
+				Path: "/",
+			},
+		},
+		IsTruncated: false,
+		Marker:      "",
+		RequestId:   "7a62c49f-347e-4fc4-9331-6e8eEXAMPLE",
+	}
+	userName := "Bob"
+	marker := "ignore"
+	maxItems := 10
+	resp, err := s.iam.GroupsForUser(userName, marker, maxItems)
+	values := testServer.WaitRequest().URL.Query()
+	c.Assert(values.Get("Action"), check.Equals, "ListGroupsForUser")
+	c.Assert(values.Get("UserName"), check.Equals, userName)
+	c.Assert(values.Get("Marker"), check.Equals, marker)
+	c.Assert(values.Get("MaxItems"), check.Equals, strconv.Itoa(maxItems))
+	c.Assert(err, check.IsNil)
+	c.Assert(*resp, check.DeepEquals, expected)
+}
+
+func (s *S) TestInstanceProfiles(c *check.C) {
+	testServer.Response(200, nil, InstanceProfilesExample)
+	expected := iam.InstanceProfilesResp{
+		Profiles: []iam.InstanceProfile{
+			iam.InstanceProfile{
+				Arn:                 "arn:aws:iam::123456789012:instance-profile/application_abc/component_xyz/Database",
+				CreateDate:          "2012-05-09T16:27:03Z",
+				InstanceProfileId:   "AIPACIFN4OZXG7EXAMPLE",
+				InstanceProfileName: "Database",
+				Path:                "/application_abc/component_xyz/",
+				Roles: []iam.Role{
+					iam.Role{
+						Arn: "arn:aws:iam::123456789012:role/application_abc/component_xyz/S3Access",
+						AssumeRolePolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}`,
+						CreateDate:               "2012-05-09T15:45:35Z",
+						Path:                     "/application_abc/component_xyz/",
+						RoleId:                   "AROACVSVTSZYK3EXAMPLE",
+						RoleName:                 "S3Access",
+					},
+				},
+			},
+			iam.InstanceProfile{
+				Arn:                 "arn:aws:iam::123456789012:instance-profile/application_abc/component_xyz/Webserver",
+				CreateDate:          "2012-05-09T16:27:11Z",
+				InstanceProfileId:   "AIPACZLSXM2EYYEXAMPLE",
+				InstanceProfileName: "Webserver",
+				Path:                "/application_abc/component_xyz/",
+				Roles:               nil,
+			},
+		},
+		IsTruncated: false,
+		Marker:      "",
+		RequestId:   "fd74fa8d-99f3-11e1-a4c3-27EXAMPLE804",
+	}
+	pathPrefix := "/application_abc/"
+	marker := "ignore"
+	maxItems := 10
+	resp, err := s.iam.InstanceProfiles(pathPrefix, marker, maxItems)
+	values := testServer.WaitRequest().URL.Query()
+	c.Assert(values.Get("Action"), check.Equals, "ListInstanceProfiles")
+	c.Assert(values.Get("PathPrefix"), check.Equals, pathPrefix)
+	c.Assert(values.Get("Marker"), check.Equals, marker)
+	c.Assert(values.Get("MaxItems"), check.Equals, strconv.Itoa(maxItems))
+	c.Assert(err, check.IsNil)
+	c.Assert(*resp, check.DeepEquals, expected)
+}
+
+func (s *S) TestInstanceProfilesForRole(c *check.C) {
+	testServer.Response(200, nil, InstanceProfilesForRoleExample)
+	expected := iam.InstanceProfilesForRoleResp{
+		Profiles: []iam.InstanceProfile{
+			iam.InstanceProfile{
+				Arn:                 "arn:aws:iam::123456789012:instance-profile/application_abc/component_xyz/Webserver",
+				CreateDate:          "2012-05-09T16:27:11Z",
+				InstanceProfileId:   "AIPACZLS2EYYXMEXAMPLE",
+				InstanceProfileName: "Webserver",
+				Path:                "/application_abc/component_xyz/",
+				Roles: []iam.Role{
+					iam.Role{
+						Arn: "arn:aws:iam::123456789012:role/application_abc/component_xyz/S3Access",
+						AssumeRolePolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}`,
+						CreateDate:               "2012-05-09T15:45:35Z",
+						Path:                     "/application_abc/component_xyz/",
+						RoleId:                   "AROACVSVTSZYK3EXAMPLE",
+						RoleName:                 "S3Access",
+					},
+				},
+			},
+		},
+		IsTruncated: false,
+		Marker:      "",
+		RequestId:   "6a8c3992-99f4-11e1-a4c3-27EXAMPLE804",
+	}
+	roleName := "S3Access"
+	marker := "ignore"
+	maxItems := 10
+	resp, err := s.iam.InstanceProfilesForRole(roleName, marker, maxItems)
+	values := testServer.WaitRequest().URL.Query()
+	c.Assert(values.Get("Action"), check.Equals, "ListInstanceProfilesForRole")
+	c.Assert(values.Get("RoleName"), check.Equals, roleName)
+	c.Assert(values.Get("Marker"), check.Equals, marker)
+	c.Assert(values.Get("MaxItems"), check.Equals, strconv.Itoa(maxItems))
+	c.Assert(err, check.IsNil)
+	c.Assert(*resp, check.DeepEquals, expected)
+}
+
+func (s *S) TestRolePolicies(c *check.C) {
+	testServer.Response(200, nil, RolePoliciesExample)
+	expected := iam.RolePoliciesResp{
+		PolicyNames: []string{
+			"CloudwatchPutMetricPolicy",
+			"S3AccessPolicy",
+		},
+		IsTruncated: false,
+		Marker:      "",
+		RequestId:   "8c7e1816-99f0-11e1-a4c3-27EXAMPLE804",
+	}
+	roleName := "S3Access"
+	marker := "ignore"
+	maxItems := 10
+	resp, err := s.iam.RolePolicies(roleName, marker, maxItems)
+	values := testServer.WaitRequest().URL.Query()
+	c.Assert(values.Get("Action"), check.Equals, "ListRolePolicies")
+	c.Assert(values.Get("RoleName"), check.Equals, roleName)
+	c.Assert(values.Get("Marker"), check.Equals, marker)
+	c.Assert(values.Get("MaxItems"), check.Equals, strconv.Itoa(maxItems))
+	c.Assert(err, check.IsNil)
+	c.Assert(*resp, check.DeepEquals, expected)
+}
+
+func (s *S) TestRoles(c *check.C) {
+	testServer.Response(200, nil, RolesExample)
+	expected := iam.RolesResp{
+		Roles: []iam.Role{
+			iam.Role{
+				Arn: "arn:aws:iam::123456789012:role/application_abc/component_xyz/S3Access",
+				AssumeRolePolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}`,
+				CreateDate:               "2012-05-09T15:45:35Z",
+				Path:                     "/application_abc/component_xyz/",
+				RoleId:                   "AROACVSVTSZYEXAMPLEYK",
+				RoleName:                 "S3Access",
+			},
+			iam.Role{
+				Arn: "arn:aws:iam::123456789012:role/application_abc/component_xyz/SDBAccess",
+				AssumeRolePolicyDocument: `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}`,
+				CreateDate:               "2012-05-09T15:45:45Z",
+				Path:                     "/application_abc/component_xyz/",
+				RoleId:                   "AROAC2ICXG32EXAMPLEWK",
+				RoleName:                 "SDBAccess",
+			},
+		},
+		IsTruncated: false,
+		Marker:      "",
+		RequestId:   "20f7279f-99ee-11e1-a4c3-27EXAMPLE804",
+	}
+	pathPrefix := "/application_abc/"
+	marker := "ignore"
+	maxItems := 10
+	resp, err := s.iam.Roles(pathPrefix, marker, maxItems)
+	values := testServer.WaitRequest().URL.Query()
+	c.Assert(values.Get("Action"), check.Equals, "ListRoles")
+	c.Assert(values.Get("PathPrefix"), check.Equals, pathPrefix)
+	c.Assert(values.Get("Marker"), check.Equals, marker)
+	c.Assert(values.Get("MaxItems"), check.Equals, strconv.Itoa(maxItems))
+	c.Assert(err, check.IsNil)
+	c.Assert(*resp, check.DeepEquals, expected)
+}
+
+func (s *S) TestUserPolicies(c *check.C) {
+	testServer.Response(200, nil, UserPoliciesExample)
+	expected := iam.UserPoliciesResp{
+		PolicyNames: []string{"AllAccessPolicy", "KeyPolicy"},
+		IsTruncated: false,
+		Marker:      "",
+		RequestId:   "7a62c49f-347e-4fc4-9331-6e8eEXAMPLE",
+	}
+	userName := "Bob"
+	marker := "ignore"
+	maxItems := 10
+	resp, err := s.iam.UserPolicies(userName, marker, maxItems)
+	values := testServer.WaitRequest().URL.Query()
+	c.Assert(values.Get("Action"), check.Equals, "ListUserPolicies")
+	c.Assert(values.Get("UserName"), check.Equals, userName)
+	c.Assert(values.Get("Marker"), check.Equals, marker)
+	c.Assert(values.Get("MaxItems"), check.Equals, strconv.Itoa(maxItems))
+	c.Assert(err, check.IsNil)
+	c.Assert(*resp, check.DeepEquals, expected)
+}
+
+func (s *S) TestUsers(c *check.C) {
+	testServer.Response(200, nil, UsersExample)
+	expected := iam.UsersResp{
+		Users: []iam.User{
+			iam.User{
+				Arn:  "arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/engineering/Andrew",
+				Path: "/division_abc/subdivision_xyz/engineering/",
+				Id:   "AID2MAB8DPLSRHEXAMPLE",
+				Name: "Andrew",
+			},
+			iam.User{
+				Arn:  "arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/engineering/Jackie",
+				Path: "/division_abc/subdivision_xyz/engineering/",
+				Id:   "AIDIODR4TAW7CSEXAMPLE",
+				Name: "Jackie",
+			},
+		},
+		IsTruncated: false,
+		Marker:      "",
+		RequestId:   "7a62c49f-347e-4fc4-9331-6e8eEXAMPLE",
+	}
+	pathPrefix := "/division_abc/subdivision_xyz/product_1234/engineering/"
+	marker := "ignore"
+	maxItems := 10
+	resp, err := s.iam.Users(pathPrefix, marker, maxItems)
+	values := testServer.WaitRequest().URL.Query()
+	c.Assert(values.Get("Action"), check.Equals, "ListUsers")
+	c.Assert(values.Get("PathPrefix"), check.Equals, pathPrefix)
+	c.Assert(values.Get("Marker"), check.Equals, marker)
+	c.Assert(values.Get("MaxItems"), check.Equals, strconv.Itoa(maxItems))
 	c.Assert(err, check.IsNil)
 	c.Assert(*resp, check.DeepEquals, expected)
 }

@@ -220,6 +220,7 @@ type Role struct {
 	AssumeRolePolicyDocument string
 	CreateDate               string
 	Path                     string
+	RoleId                   string
 	RoleName                 string
 }
 
@@ -232,7 +233,7 @@ type InstanceProfile struct {
 	InstanceProfileId   string
 	InstanceProfileName string
 	Path                string
-	Roles               []Role `xml:"Roles>members"`
+	Roles               []Role `xml:"Roles>member"`
 }
 
 // Response to a GetInstanceProfile request.
@@ -285,9 +286,9 @@ func (iam *IAM) GetRole(roleName string) (*GetRoleResp, error) {
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_GetRolePolicyResult.html for more details.
 type GetRolePolicyResp struct {
-	PolicyDocument string `xml:"GetRolePolicyResults>PolicyDocument"`
-	PolicyName     string `xml:"GetRolePolicyResults>PolicyName"`
-	RoleName       string `xml:"GetRolePolicyResults>RoleName"`
+	PolicyDocument string `xml:"GetRolePolicyResult>PolicyDocument"`
+	PolicyName     string `xml:"GetRolePolicyResult>PolicyName"`
+	RoleName       string `xml:"GetRolePolicyResult>RoleName"`
 	RequestId      string `xml:"ResponseMetadata>RequestId"`
 }
 
@@ -311,7 +312,7 @@ func (iam *IAM) GetRolePolicy(roleName, policyName string) (*GetRolePolicyResp, 
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListAccountAliasesResult.html for more details.
 type AccountAliasesResp struct {
-	Aliases     []string `xml:"ListAccountAliasesResult>AccountAliases"`
+	Aliases     []string `xml:"ListAccountAliasesResult>AccountAliases>member"`
 	IsTruncated bool     `xml:"ListAccountAliasesResult>IsTruncated"`
 	Marker      string   `xml:"ListAccountAliasesResult>Marker"`
 	RequestId   string   `xml:"ResponseMetadata>RequestId"`
@@ -328,7 +329,7 @@ func (iam *IAM) AccountAliases(marker string, maxItems int) (*AccountAliasesResp
 		params["Marker"] = marker
 	}
 	if maxItems != 0 {
-		params["maxItems"] = strconv.Itoa(maxItems)
+		params["MaxItems"] = strconv.Itoa(maxItems)
 	}
 	resp := new(AccountAliasesResp)
 	if err := iam.query(params, resp); err != nil {
@@ -341,7 +342,7 @@ func (iam *IAM) AccountAliases(marker string, maxItems int) (*AccountAliasesResp
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListGroupPoliciesResult.html for more details.
 type GroupPoliciesResp struct {
-	PolicyNames []string `xml:"ListGroupPoliciesResult>PolicyNames"`
+	PolicyNames []string `xml:"ListGroupPoliciesResult>PolicyNames>member"`
 	IsTruncated bool     `xml:"ListGroupPoliciesResult>IsTruncated"`
 	Marker      string   `xml:"ListGroupPoliciesResult>Marker"`
 	RequestId   string   `xml:"ResponseMetadata>RequestId"`
@@ -359,7 +360,7 @@ func (iam *IAM) GroupPolicies(groupName, marker string, maxItems int) (*GroupPol
 		params["Marker"] = marker
 	}
 	if maxItems != 0 {
-		params["maxItems"] = strconv.Itoa(maxItems)
+		params["MaxItems"] = strconv.Itoa(maxItems)
 	}
 	resp := new(GroupPoliciesResp)
 	if err := iam.query(params, resp); err != nil {
@@ -372,7 +373,7 @@ func (iam *IAM) GroupPolicies(groupName, marker string, maxItems int) (*GroupPol
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListGroupsForUserResult.html for more details.
 type GroupsForUserResp struct {
-	Groups      []Group `xml:"ListGroupsForUserResult>Groups"`
+	Groups      []Group `xml:"ListGroupsForUserResult>Groups>member"`
 	IsTruncated bool    `xml:"ListGroupsForUserResult>IsTruncated"`
 	Marker      string  `xml:"ListGroupsForUserResult>Marker"`
 	RequestId   string  `xml:"ResponseMetadata>RequestId"`
@@ -383,14 +384,14 @@ type GroupsForUserResp struct {
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListGroupsForUser.html for more details.
 func (iam *IAM) GroupsForUser(userName, marker string, maxItems int) (*GroupsForUserResp, error) {
 	params := map[string]string{
-		"Action":   "GroupsForUser",
+		"Action":   "ListGroupsForUser",
 		"UserName": userName,
 	}
 	if marker != "" {
 		params["Marker"] = marker
 	}
 	if maxItems != 0 {
-		params["maxItems"] = strconv.Itoa(maxItems)
+		params["MaxItems"] = strconv.Itoa(maxItems)
 	}
 	resp := new(GroupsForUserResp)
 	if err := iam.query(params, resp); err != nil {
@@ -403,9 +404,9 @@ func (iam *IAM) GroupsForUser(userName, marker string, maxItems int) (*GroupsFor
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListInstanceProfilesResult.html for more details.
 type InstanceProfilesResp struct {
-	Profiles    []InstanceProfile `xml:"ListInstaceProfileResult>InstanceProfiles"`
-	IsTruncated bool              `xml:"ListInstaceProfileResult>IsTruncated"`
-	Marker      string            `xml:"ListInstaceProfileResult>Marker"`
+	Profiles    []InstanceProfile `xml:"ListInstanceProfilesResult>InstanceProfiles>member"`
+	IsTruncated bool              `xml:"ListInstanceProfilesResult>IsTruncated"`
+	Marker      string            `xml:"ListInstanceProfilesResult>Marker"`
 	RequestId   string            `xml:"ResponseMetadata>RequestId"`
 }
 
@@ -423,7 +424,7 @@ func (iam *IAM) InstanceProfiles(pathPrefix, marker string, maxItems int) (*Inst
 		params["Marker"] = marker
 	}
 	if maxItems != 0 {
-		params["maxItems"] = strconv.Itoa(maxItems)
+		params["MaxItems"] = strconv.Itoa(maxItems)
 	}
 	resp := new(InstanceProfilesResp)
 	if err := iam.query(params, resp); err != nil {
@@ -436,9 +437,9 @@ func (iam *IAM) InstanceProfiles(pathPrefix, marker string, maxItems int) (*Inst
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListInstanceProfilesForRoleResult.html for more details.
 type InstanceProfilesForRoleResp struct {
-	Profiles    []InstanceProfile `xml:"ListInstaceProfileForRoleResult>InstanceProfiles"`
-	IsTruncated bool              `xml:"ListInstaceProfileForRoleResult>IsTruncated"`
-	Marker      string            `xml:"ListInstaceProfileForRoleResult>Marker"`
+	Profiles    []InstanceProfile `xml:"ListInstanceProfilesForRoleResult>InstanceProfiles>member"`
+	IsTruncated bool              `xml:"ListInstanceProfilesForRoleResult>IsTruncated"`
+	Marker      string            `xml:"ListInstanceProfilesForRoleResult>Marker"`
 	RequestId   string            `xml:"ResponseMetadata>RequestId"`
 }
 
@@ -447,14 +448,14 @@ type InstanceProfilesForRoleResp struct {
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListInstanceProfilesForRole.html for more details.
 func (iam *IAM) InstanceProfilesForRole(roleName, marker string, maxItems int) (*InstanceProfilesForRoleResp, error) {
 	params := map[string]string{
-		"Action":   "InstanceProfilesForRole",
+		"Action":   "ListInstanceProfilesForRole",
 		"RoleName": roleName,
 	}
 	if marker != "" {
 		params["Marker"] = marker
 	}
 	if maxItems != 0 {
-		params["maxItems"] = strconv.Itoa(maxItems)
+		params["MaxItems"] = strconv.Itoa(maxItems)
 	}
 	resp := new(InstanceProfilesForRoleResp)
 	if err := iam.query(params, resp); err != nil {
@@ -467,7 +468,7 @@ func (iam *IAM) InstanceProfilesForRole(roleName, marker string, maxItems int) (
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListRolePoliciesResult.html for more details.
 type RolePoliciesResp struct {
-	PolicyNames []string `xml:"ListRolePoliciesResult>PolicyNames"`
+	PolicyNames []string `xml:"ListRolePoliciesResult>PolicyNames>member"`
 	IsTruncated bool     `xml:"ListGroupPoliciesResult>IsTruncated"`
 	Marker      string   `xml:"ListGroupPoliciesResult>Marker"`
 	RequestId   string   `xml:"ResponseMetadata>RequestId"`
@@ -485,7 +486,7 @@ func (iam *IAM) RolePolicies(roleName, marker string, maxItems int) (*RolePolici
 		params["Marker"] = marker
 	}
 	if maxItems != 0 {
-		params["maxItems"] = strconv.Itoa(maxItems)
+		params["MaxItems"] = strconv.Itoa(maxItems)
 	}
 	resp := new(RolePoliciesResp)
 	if err := iam.query(params, resp); err != nil {
@@ -498,7 +499,7 @@ func (iam *IAM) RolePolicies(roleName, marker string, maxItems int) (*RolePolici
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListRolesResult.html for more details.
 type RolesResp struct {
-	Roles       []Role `xml:"ListRolesResult>Roles"`
+	Roles       []Role `xml:"ListRolesResult>Roles>member"`
 	IsTruncated bool   `xml:"ListRolesResult>IsTruncated"`
 	Marker      string `xml:"ListRolesResult>Marker"`
 	RequestId   string `xml:"ResponseMetadata>RequestId"`
@@ -518,7 +519,7 @@ func (iam *IAM) Roles(pathPrefix, marker string, maxItems int) (*RolesResp, erro
 		params["Marker"] = marker
 	}
 	if maxItems != 0 {
-		params["maxItems"] = strconv.Itoa(maxItems)
+		params["MaxItems"] = strconv.Itoa(maxItems)
 	}
 	resp := new(RolesResp)
 	if err := iam.query(params, resp); err != nil {
@@ -615,7 +616,7 @@ func (iam *IAM) Groups(pathPrefix string) (*GroupsResp, error) {
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListUserPoliciesResult.html for more details.
 type UserPoliciesResp struct {
-	PolicyNames []string `xml:"ListUserPoliciesResult>PolicyNames"`
+	PolicyNames []string `xml:"ListUserPoliciesResult>PolicyNames>member"`
 	IsTruncated bool     `xml:"ListUserPoliciesResult>IsTruncated"`
 	Marker      string   `xml:"ListUserPoliciesResult>Marker"`
 	RequestId   string   `xml:"ResponseMetadata>RequestId"`
@@ -633,7 +634,7 @@ func (iam *IAM) UserPolicies(userName, marker string, maxItems int) (*UserPolici
 		params["Marker"] = marker
 	}
 	if maxItems != 0 {
-		params["maxItems"] = strconv.Itoa(maxItems)
+		params["MaxItems"] = strconv.Itoa(maxItems)
 	}
 	resp := new(UserPoliciesResp)
 	if err := iam.query(params, resp); err != nil {
@@ -646,7 +647,7 @@ func (iam *IAM) UserPolicies(userName, marker string, maxItems int) (*UserPolici
 //
 // See http://docs.aws.amazon.com/IAM/latest/APIReference/API_ListUsersResult.html for more details.
 type UsersResp struct {
-	Users       []User `xml:"ListUsersResult>Users"`
+	Users       []User `xml:"ListUsersResult>Users>member"`
 	IsTruncated bool   `xml:"ListUsersResult>IsTruncated"`
 	Marker      string `xml:"ListUsersResult>Marker"`
 	RequestId   string `xml:"ResponseMetadata>RequestId"`
@@ -666,7 +667,7 @@ func (iam *IAM) Users(pathPrefix, marker string, maxItems int) (*UsersResp, erro
 		params["Marker"] = marker
 	}
 	if maxItems != 0 {
-		params["maxItems"] = strconv.Itoa(maxItems)
+		params["MaxItems"] = strconv.Itoa(maxItems)
 	}
 	resp := new(UsersResp)
 	if err := iam.query(params, resp); err != nil {
