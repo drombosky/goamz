@@ -1104,10 +1104,13 @@ type CreateSecurityGroupResp struct {
 // name and description.
 //
 // See http://goo.gl/Eo7Yl for more details.
-func (ec2 *EC2) CreateSecurityGroup(name, description string) (resp *CreateSecurityGroupResp, err error) {
+func (ec2 *EC2) CreateSecurityGroup(name, description, vpc string) (resp *CreateSecurityGroupResp, err error) {
 	params := makeParams("CreateSecurityGroup")
 	params["GroupName"] = name
 	params["GroupDescription"] = description
+	if vpc != "" {
+		params["VpcId"] = vpc
+	}
 
 	resp = &CreateSecurityGroupResp{}
 	err = ec2.query(params, resp)
