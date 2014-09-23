@@ -1241,6 +1241,14 @@ func (ec2 *EC2) AuthorizeSecurityGroup(group SecurityGroup, perms []IPPerm) (res
 	return ec2.authOrRevoke("AuthorizeSecurityGroupIngress", group, perms)
 }
 
+// AuthorizeSecurityGroup creates an allowance for clients matching the provided
+// rules to access instances within the given security group.
+//
+// See http://goo.gl/u2sDJ for more details.
+func (ec2 *EC2) AuthorizeSecurityGroupEgress(group SecurityGroup, perms []IPPerm) (resp *SimpleResp, err error) {
+	return ec2.authOrRevoke("AuthorizeSecurityGroupEgress", group, perms)
+}
+
 // RevokeSecurityGroup revokes permissions from a group.
 //
 // See http://goo.gl/ZgdxA for more details.
